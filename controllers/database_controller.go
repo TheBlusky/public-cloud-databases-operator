@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"net/http"
 	"strings"
 
@@ -177,9 +178,20 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+func GetAddressType(key string, fallback corev1.NodeAddressType) corev1.NodeAddressType {
+	value := os.Getenv(key)
+	if value == "InternalIP" {
+		return "InternalIP"
+	}
+	if value == "ExternalIP" {
+		return "ExternalIP"
+	}
+    return fallback
+}
+
 func getInternalAddress(node corev1.Node) string {
 	for _, address := range node.Status.Addresses {
-		if address.Type == "InternalIP" {
+		if address.Type == GetAddressType("ADDRESS_TYPE_OVERRIDE", "InternalIP") {
 			return address.Address
 		}
 	}
@@ -193,7 +205,7 @@ func getKubePublicAddesses(nodes corev1.NodeList, crd v1alpha1.Database) ([]IpRe
 
 	for _, node := range nodes.Items {
 		for _, address := range node.Status.Addresses {
-			if address.Type == "ExternalIP" {
+			if address.Type == GetAddressType("ADDRESS_TYPE_OVERRIDE", "ExternalIP") {
 				ip := fmt.Sprintf("%s%s", address.Address, Mask)
 				ipsMap[ip] = struct{}{}
 				newIPs = append(newIPs, IpRestriction{IP: ip, Description: IpRestrictionDescription(node, crd)})

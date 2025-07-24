@@ -34,6 +34,10 @@ ovhCredentials:
   consumerKey: ""
   region: "ovh-eu"
 
+addressTypeOverride: ""
+## Leave empty for default behavior, set to "ExternalIP" or "InternalIP" for forcing
+## use of a specific IP
+
 resources: {}
 
 nodeSelector: {}

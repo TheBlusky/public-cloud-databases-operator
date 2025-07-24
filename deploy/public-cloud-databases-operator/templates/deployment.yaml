@@ -66,6 +66,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "ovhcreds.secretName" $ }}
                   key: consumerKey
+            - name: ADDRESS_TYPE_OVERRIDE
+              value: {{ .Values.addressTypeOverride }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}
